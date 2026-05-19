@@ -6,7 +6,7 @@
 // pop restores the packing alignment to state it was in before alst push operation
 
 #pragma pack(push, 1)
-struct tick {
+struct Tick {
     uint64_t time;
     double price;
     uint32_t volume;
