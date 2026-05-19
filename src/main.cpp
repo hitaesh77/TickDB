@@ -6,34 +6,65 @@
 
 int main(int argc, char** argv) {
 
-    // TESTING PACKED STRUCT SIZE
+    // TEST 1: round trip (encode to decode)
+    {
+        Tick original = {1716135000, 150.25, 500};
+        uint8_t buffer[20];
 
-    // Test 1: size of struct
-    tick test_tick = {123, 123, 123};
-    assert(sizeof(test_tick) == 20 && "Test 1: FAILED - tick struct should be 20 bytes");
-    std::cout << "Test 1: PASSED - tick struct is 20 bytes" << std::endl;
+        encode_tick_20(original, buffer);
+        Tick decoded = decode_tick_20(buffer);
 
-    // Test 2: Field Offsets
-    assert(offsetof(tick, time) == 0 && "Test 2.1: FAILED - offset of 'time' should be 0");
-    assert(offsetof(tick, price) == 8 && "Test 2.2: FAILED - offset of 'price' should be 8");
-    assert(offsetof(tick, volume) == 16 && "Test 2.3: FAILED - offset of 'volume' should be 16");
-    std::cout << "Test 2: PASSED - struct is aligned to 1 bit" << std::endl;
+        assert(decoded.time == original.time && "Test 1.1: FAILED - time mismatch");
+        assert(decoded.price == original.price && "Test 1.2: FAILED - price mismatch");
+        assert(decoded.volume == original.volume && "Test 1.3: FAILED - volume mismatch");
+        std::cout << "Test 1: PASSED - round trip matches" << std::endl;
+    }
 
-    // Test 3: contiguous structs
-    tick test_buffer[5];
+    // TEST 2: buffer layout and boundary verification
+    {
+        Tick original = {0x0102030405060708, 0.0, 0xAABBCCDD};
+        uint8_t buffer[20] = {0};
 
-    tick* test_addr0 = &(test_buffer[0]);
-    tick* test_addr1 = &(test_buffer[1]);
-    tick* test_addr2 = &(test_buffer[2]);
-    tick* test_addr3 = &(test_buffer[3]);
-    tick* test_addr4 = &(test_buffer[4]);
+        encode_tick_20(original, buffer);
 
-    // casting the following to char* to get byte offset, not index offset
-    assert(((char*)test_addr1 - (char*)test_addr0) == 20 && "Test 3.1: FAILED - back to back not contiguous");
-    assert(((char*)test_addr2 - (char*)test_addr0) == 40 && "Test 3.2: FAILED - 3 back to back not contiguous");
-    assert(((char*)test_addr4 - (char*)test_addr0) == 80 && "Test 3.3: FAILED - full buffer back to back not contiguous");
-    assert(sizeof(test_buffer) == 100 && "Test 3.4: FAILED - full array size not 100 bytes");
-    std::cout << "Test 3: PASSED - contiguous slot of structs is aligned to 1 bit" << std::endl;
+        // little endian verification of time bits
+        assert(buffer[0] == 0x08 && "Test 2.1: FAILED - byte 0 layout incorrect");
+        assert(buffer[7] == 0x01 && "Test 2.2: FAILED - byte 7 layout incorrect");
+
+        // little endian verification of volume bits
+        assert(buffer[16] == 0xDD && "Test 2.3: FAILED - volume byte 16 incorrect");
+        assert(buffer[19] == 0xAA && "Test 2.4: FAILED - volume byte 19 incorrect");
+        
+        std::cout << "Test 2: PASSED - buffer offsets match 20 byte spec." << std::endl;
+    }
+
+    // TEST 3: continuous stream processing
+    {
+        Tick stream_in[3] = {
+            {1, 10.5, 100},
+            {2, 11.0, 200},
+            {3, 11.5, 300}
+        };
+
+        // 60 byte stream buffer
+        uint8_t stream_buffer[60];
+
+        // pack stream into buffer
+        for (int i = 0; i < 3; ++i) {
+            encode_tick_20(stream_in[i], stream_buffer + (i * 20));
+        }
+
+        // unpack and verify stream form buffer
+        for (int i = 0; i < 3; ++i) {
+            Tick unpacked = decode_tick_20(stream_buffer + (i * 20));
+
+            assert(unpacked.time == stream_in[i].time && "Test 3: FAILED - stream time mismatch");
+            assert(unpacked.price == stream_in[i].price && "Test 3: FAILED - stream price mismatch");
+            assert(unpacked.volume == stream_in[i].volume && "Test 3: FAILED - stream volume mismatch");
+        }
+
+        std::cout << "Test 3: PASSED - stream array handling packs and unpacks contiguously." << std::endl;
+    }
 
     return 0;    
 }
