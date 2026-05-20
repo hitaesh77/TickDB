@@ -4,7 +4,7 @@ CXXFLAGS = -std=c++20 -Wall -O2
 
 # Build the main executable
 all:
-	$(CXX) $(CXXFLAGS) src/main.cpp src/wal/wal_writer.cpp -o tickdb -lz
+	$(CXX) $(CXXFLAGS) src/main.cpp src/wal/wal_writer.cpp src/wal/wal_reader.cpp -o tickdb -lz
 
 # Run the test suite execution binary
 run: all

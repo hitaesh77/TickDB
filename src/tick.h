@@ -30,7 +30,7 @@ inline void encode_tick_20(const Tick& tick, uint8_t* data_out) {
     std::memcpy(data_out + 16, &(tick.volume), sizeof(tick.volume));
 }
 
-inline Tick decode_tick_20(uint8_t* data_in) {
+inline Tick decode_tick_20(const uint8_t* data_in) {
     Tick result;
 
     std::memcpy(&(result.time), data_in, sizeof(result.time));

@@ -32,8 +32,7 @@ class WALWriter {
 class WALReader {
     public:
         explicit WALReader(const std::filesystem::path& path);
-        void append_batch(const std::vector<Tick>& ticks);
-        void replay();
+        std::vector<Tick> replay();
     
         private:
             std::ifstream wal_file; // ifstream for reading 
