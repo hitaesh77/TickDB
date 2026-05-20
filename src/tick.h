@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <cstring>
 
+constexpr size_t TICK_DISK_SIZE = 20;
+
 // pragma pack(push, n) sets packing alignment to n bytes. forces compiler to align members 
 // on n-byte bnoundaries or their natural alignment (whichever smaller)
 // push save the current alignment setting on compiler stack then sets a new alignment

@@ -22,8 +22,8 @@ std::vector<Tick> WALReader::replay() {
         if (bytes_read != static_cast<std::streamsize>(sizeof(WALRecordHeader))) break;
         if (header.tick_count == 0) break;
         if (header.payload_size == 0) break;
-        if (header.payload_size % 20 != 0) break;
-        if (header.tick_count != header.payload_size / 20) break;
+        if (header.payload_size % TICK_DISK_SIZE != 0) break;
+        if (header.tick_count != header.payload_size / TICK_DISK_SIZE) break;
 
         // read payload
         std::vector<uint8_t> payload(header.payload_size);
@@ -43,7 +43,7 @@ std::vector<Tick> WALReader::replay() {
         if (computed_crc != header.crc32) break;
 
         for (uint32_t i = 0; i < header.tick_count; i++) {
-            const uint8_t* tick_ptr = payload.data() + (i * 20);
+            const uint8_t* tick_ptr = payload.data() + (i * TICK_DISK_SIZE);
             recovered.push_back(decode_tick_20(tick_ptr));
         }
     }

@@ -18,12 +18,12 @@ void WALWriter::append_batch(const std::vector<Tick>& ticks) {
     }
 
     const uint32_t tick_count = static_cast<uint32_t>(ticks.size());
-    const uint32_t payload_size = tick_count * 20;
+    const uint32_t payload_size = tick_count * TICK_DISK_SIZE;
     
     std::vector<uint8_t> payload(payload_size);
 
     for (size_t i = 0; i < ticks.size(); i++) {
-        encode_tick_20(ticks[i], payload.data() + (i * 20));
+        encode_tick_20(ticks[i], payload.data() + (i * TICK_DISK_SIZE));
     }
 
     // Bytef is a data type from zlib, so have to cast our payload type to that
