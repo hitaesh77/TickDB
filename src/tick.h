@@ -1,3 +1,6 @@
+#ifndef TICK_H
+#define TICK_H
+
 #include <cstdint>
 #include <cstring>
 
@@ -36,3 +39,5 @@ inline Tick decode_tick_20(uint8_t* data_in) {
 
     return result;
 }
+
+#endif
