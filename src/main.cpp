@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <cstddef>
 #include "tick.h"
-#include "wal/wal_writer.h"
+#include "wal/wal.h"
 
 int main(int argc, char** argv) {
 

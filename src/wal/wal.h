@@ -1,5 +1,5 @@
-#ifndef WAL_WRITER_H
-#define WAL_WRITER_H
+#ifndef WAL_H
+#define WAL_H
 
 #include <filesystem>
 #include <span>
@@ -26,6 +26,17 @@ class WALWriter {
     
         private:
             std::ofstream wal_file; // ofstream for writing 
+};
+
+
+class WALReader {
+    public:
+        explicit WALReader(const std::filesystem::path& path);
+        void append_batch(const std::vector<Tick>& ticks);
+        void replay();
+    
+        private:
+            std::ifstream wal_file; // ifstream for reading 
 };
 
 #endif

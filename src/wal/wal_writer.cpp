@@ -1,4 +1,4 @@
-#include "wal_writer.h"
+#include "wal.h"
 
 WALWriter::WALWriter(const std::filesystem::path& path) {
     WALWriter::wal_file.open(path, std::ios_base::app | std::ios_base::binary); // file openend in binary append mode
